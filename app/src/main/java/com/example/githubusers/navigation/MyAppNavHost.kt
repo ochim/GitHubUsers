@@ -23,6 +23,7 @@ fun MyAppNavHost(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
+                mainViewModel = mainViewModel,
                 onNavigateToDetails = { navController.navigate(Screen.Details.route) },
             )
         }
