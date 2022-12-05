@@ -19,8 +19,13 @@ class MainViewModel(
         get() = _usersLiveState
 
     fun usersList() {
+        if (_usersLiveState.value == FetchNetworkModelState.Fetching) return
+
+        _usersLiveState.value = FetchNetworkModelState.Fetching
+
         viewModelScope.launch {
-            _usersLiveState.value = FetchNetworkModelState.RefreshedOK(gitHubRepository.usersList())
+            val users = gitHubRepository.usersList()
+            _usersLiveState.value = FetchNetworkModelState.RefreshedOK(users)
         }
     }
 }
