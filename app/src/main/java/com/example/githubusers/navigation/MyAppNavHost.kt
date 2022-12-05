@@ -8,11 +8,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.githubusers.ui.details.DetailsScreen
 import com.example.githubusers.ui.home.HomeScreen
+import com.example.githubusers.ui.home.MainViewModel
 
 @Composable
 fun MyAppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
+    mainViewModel: MainViewModel
 ) {
     NavHost(
         modifier = modifier,
