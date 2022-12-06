@@ -4,9 +4,11 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -21,6 +24,7 @@ import coil.size.Scale
 import com.example.githubusers.R
 import com.example.githubusers.domain.User
 import com.example.githubusers.ui.FetchNetworkModelState
+import kotlinx.coroutines.flow.filter
 
 @Composable
 fun HomeScreen(
@@ -72,14 +76,11 @@ fun UserListContent(
         is FetchNetworkModelState.RefreshedOK -> {
             val data = (users.value as? FetchNetworkModelState.RefreshedOK<List<User>>)?.data
             if (!data.isNullOrEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    items(data) {
-                        UserListItem(user = it, onNavigateToDetails)
-                    }
-                }
+                UserList(topPadding = paddingValues.calculateTopPadding(),
+                    onNavigateToDetails = onNavigateToDetails,
+                    users = data,
+                    onAppearLastItem = { homeViewModel.nextUsersList(data.last().id) }
+                )
             }
         }
         is FetchNetworkModelState.FetchedError -> {
@@ -87,6 +88,27 @@ fun UserListContent(
             Toast.makeText(LocalContext.current, exception.message, Toast.LENGTH_LONG).show()
         }
         else -> {}
+    }
+}
+
+@Composable
+fun UserList(
+    topPadding: Dp,
+    onNavigateToDetails: (String) -> Unit,
+    users: List<User>,
+    onAppearLastItem: () -> Unit
+) {
+    val listState = rememberLazyListState().apply {
+        OnAppearLastItem(onAppearLastItem = onAppearLastItem)
+    }
+    LazyColumn(
+        modifier = Modifier.padding(top = topPadding),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+        state = listState
+    ) {
+        items(users) {
+            UserListItem(user = it, onNavigateToDetails)
+        }
     }
 }
 
@@ -129,5 +151,23 @@ fun UserListItem(
                 text = user.login
             )
         }
+    }
+}
+
+@Composable
+fun LazyListState.OnAppearLastItem(onAppearLastItem: () -> Unit) {
+    val isReachedToListEnd by remember {
+        derivedStateOf {
+            layoutInfo.visibleItemsInfo.size < layoutInfo.totalItemsCount &&
+                    layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { isReachedToListEnd }
+            .filter { it }
+            .collect {
+                onAppearLastItem()
+            }
     }
 }

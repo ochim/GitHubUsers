@@ -1,5 +1,6 @@
 package com.example.githubusers.ui.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,5 +32,9 @@ class HomeViewModel(
                 _usersLiveState.value = FetchNetworkModelState.FetchedError(e)
             }
         }
+    }
+
+    fun nextUsersList(since: Int) {
+        Log.d("HomeViewModel", "last user $since")
     }
 }
