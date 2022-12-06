@@ -8,13 +8,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.githubusers.ui.details.DetailsScreen
 import com.example.githubusers.ui.home.HomeScreen
-import com.example.githubusers.ui.home.MainViewModel
+import com.example.githubusers.ui.home.HomeViewModel
 
 @Composable
 fun MyAppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    mainViewModel: MainViewModel
+    homeViewModel: HomeViewModel
 ) {
     NavHost(
         modifier = modifier,
@@ -23,7 +23,7 @@ fun MyAppNavHost(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                mainViewModel = mainViewModel,
+                homeViewModel = homeViewModel,
                 onNavigateToDetails = { navController.navigate(Screen.Details.route) },
             )
         }

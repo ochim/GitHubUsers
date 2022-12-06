@@ -9,7 +9,7 @@ import com.example.githubusers.domain.User
 import com.example.githubusers.ui.FetchNetworkModelState
 import kotlinx.coroutines.launch
 
-class MainViewModel(
+class HomeViewModel(
     private val gitHubRepository: GitHubRepository,
 ) : ViewModel() {
 

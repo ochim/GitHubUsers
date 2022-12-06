@@ -14,7 +14,7 @@ import com.example.githubusers.data.repository.GitHubRepository
 import com.example.githubusers.data.repository.GitHubUsersInterface
 import com.example.githubusers.data.repository.GitHubUsersRemoteDataSource
 import com.example.githubusers.navigation.MyAppNavHost
-import com.example.githubusers.ui.home.MainViewModel
+import com.example.githubusers.ui.home.HomeViewModel
 import com.example.githubusers.ui.theme.GitHubUsersTheme
 import kotlinx.coroutines.Dispatchers
 
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val mainViewModel = MainViewModel(
+                    val homeViewModel = HomeViewModel(
                         GitHubRepository(
                             GitHubUsersRemoteDataSource(
                                 Dispatchers.IO,
@@ -43,9 +43,9 @@ class MainActivity : ComponentActivity() {
                     MyAppNavHost(
                         modifier = Modifier,
                         navController = navController,
-                        mainViewModel = mainViewModel
+                        homeViewModel = homeViewModel
                     )
-                    mainViewModel.usersList()
+                    homeViewModel.usersList()
                 }
             }
         }
