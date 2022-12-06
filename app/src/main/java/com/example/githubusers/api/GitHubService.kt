@@ -11,9 +11,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 
 private const val GITHUB_API_URL = "https://api.github.com/"
-private const val GITHUB_TOKEN =
-    "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"
-
+private const val GITHUB_TOKEN = BuildConfig.GITHUB_TOKEN
 object GitHubService {
     var retrofit: Retrofit
 
