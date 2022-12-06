@@ -24,8 +24,12 @@ class MainViewModel(
         _usersLiveState.value = FetchNetworkModelState.Fetching
 
         viewModelScope.launch {
-            val users = gitHubRepository.usersList()
-            _usersLiveState.value = FetchNetworkModelState.RefreshedOK(users)
+            try {
+                val users = gitHubRepository.usersList()
+                _usersLiveState.value = FetchNetworkModelState.RefreshedOK(users)
+            } catch (e: Exception) {
+                _usersLiveState.value = FetchNetworkModelState.FetchedError(e)
+            }
         }
     }
 }

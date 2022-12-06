@@ -1,5 +1,6 @@
 package com.example.githubusers.ui.home
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -69,8 +70,8 @@ fun UserListContent(
             }
         }
         is FetchNetworkModelState.RefreshedOK -> {
-            val data = (users.value as FetchNetworkModelState.RefreshedOK<List<User>>).data
-            if (data.isNotEmpty()) {
+            val data = (users.value as? FetchNetworkModelState.RefreshedOK<List<User>>)?.data
+            if (!data.isNullOrEmpty()) {
                 LazyColumn(
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
@@ -80,6 +81,10 @@ fun UserListContent(
                     }
                 }
             }
+        }
+        is FetchNetworkModelState.FetchedError -> {
+            val exception = (users.value as FetchNetworkModelState.FetchedError).exception
+            Toast.makeText(LocalContext.current, exception.message, Toast.LENGTH_LONG).show()
         }
         else -> {}
     }
@@ -106,9 +111,7 @@ fun UserListItem(
             user.avatar_url?.let {
                 Image(
                     modifier = Modifier
-                        .padding(
-                            end = 8.dp,
-                        )
+                        .padding(end = 8.dp)
                         .width(50.dp),
                     painter = rememberAsyncImagePainter(
                         ImageRequest.Builder(LocalContext.current).data(data = it)
@@ -125,7 +128,6 @@ fun UserListItem(
                 style = MaterialTheme.typography.subtitle1,
                 text = user.login
             )
-
         }
     }
 }

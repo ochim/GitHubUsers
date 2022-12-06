@@ -23,8 +23,7 @@ class GitHubUsersRemoteDataSource(
             if (response.isSuccessful) {
                 response.body()!!
             } else {
-                emptyList()
-                //throw Exception("usersList error code ${response.code()} ${response.message()}")
+                throw Exception("usersList error code ${response.code()} ${response.message()}")
             }
         }
     }
