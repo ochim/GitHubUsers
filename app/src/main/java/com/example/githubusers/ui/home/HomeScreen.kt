@@ -25,7 +25,7 @@ import com.example.githubusers.ui.FetchNetworkModelState
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    onNavigateToDetails: () -> Unit
+    onNavigateToDetails: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -56,7 +56,7 @@ fun HomeTopBar(
 fun UserListContent(
     paddingValues: PaddingValues,
     homeViewModel: HomeViewModel,
-    onNavigateToDetails: () -> Unit
+    onNavigateToDetails: (String) -> Unit
 ) {
     val users = homeViewModel.usersLiveState.observeAsState()
     when (users.value) {
@@ -94,7 +94,7 @@ fun UserListContent(
 @Composable
 fun UserListItem(
     user: User,
-    onNavigateToDetails: () -> Unit
+    onNavigateToDetails: (String) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -102,7 +102,7 @@ fun UserListItem(
             .height(50.dp)
             .fillMaxWidth(),
         elevation = 4.dp,
-        onClick = onNavigateToDetails
+        onClick = { onNavigateToDetails(user.login) }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
