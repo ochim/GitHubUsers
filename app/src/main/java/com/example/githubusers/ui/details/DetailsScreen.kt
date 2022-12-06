@@ -115,8 +115,12 @@ fun DetailsContent(
                     user.twitter_username?.let {
                         Text(style = textStyle, text = "twitter: @${user.twitter_username}")
                     }
+                    Text(style = textStyle, text = "public_repos: ${user.public_repos}")
+                    Text(style = textStyle, text = "public_gists: ${user.public_gists}")
                     Text(style = textStyle, text = "followers: ${user.followers}")
                     Text(style = textStyle, text = "following: ${user.following}")
+                    Text(style = textStyle, text = "created_at: ${user.created_at}")
+                    Text(style = textStyle, text = "updated_at: ${user.updated_at}")
                 }
             } else {
                 Text(username)
