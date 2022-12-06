@@ -79,7 +79,9 @@ fun UserListContent(
                 UserList(topPadding = paddingValues.calculateTopPadding(),
                     onNavigateToDetails = onNavigateToDetails,
                     users = data,
-                    onAppearLastItem = { homeViewModel.nextUsersList(data.last().id) }
+                    onAppearLastItem = {
+                        homeViewModel.nextUsersList()
+                    }
                 )
             }
         }

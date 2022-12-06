@@ -7,10 +7,14 @@ import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface GitHubUsersInterface {
     @GET("users")
     fun fetchUsers(): Call<List<User>>
+
+    @GET("users")
+    fun fetchNextUsers(@Query("since") id: Int): Call<List<User>>
 
     @GET("users/{username}")
     fun fetchUser(@Path("username") username: String): Call<User>
@@ -28,6 +32,17 @@ class GitHubUsersRemoteDataSource(
                 response.body()!!
             } else {
                 throw Exception("usersList error code ${response.code()} ${response.message()}")
+            }
+        }
+    }
+
+    suspend fun nextUsersList(since: Int): List<User> {
+        return withContext(ioDispatcher) {
+            val response = usersInterface.fetchNextUsers(since).execute()
+            if (response.isSuccessful) {
+                response.body()!!
+            } else {
+                throw Exception("nextUsersList error code ${response.code()} ${response.message()}")
             }
         }
     }

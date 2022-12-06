@@ -5,7 +5,10 @@ import com.example.githubusers.domain.User
 class GitHubRepository(
     private val gitHubUsersRemoteDataSource: GitHubUsersRemoteDataSource
 ) {
-    suspend fun usersList(): List<User> = gitHubUsersRemoteDataSource.usersList()
+    suspend fun usersList(since: Int?): List<User> {
+        return if (since == null) gitHubUsersRemoteDataSource.usersList()
+        else gitHubUsersRemoteDataSource.nextUsersList(since)
+    }
 
     suspend fun userInfo(
         username: String
