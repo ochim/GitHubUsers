@@ -37,7 +37,10 @@ fun MyAppNavHost(
             arguments = listOf(navArgument(USER_NAME_ARGUMENT_KEY) { type = NavType.StringType })
         ) { backStackEntry ->
             backStackEntry.arguments?.getString(USER_NAME_ARGUMENT_KEY)?.let {
-                DetailsScreen(it)
+                DetailsScreen(
+                    popBackStack = { navController.popBackStack() },
+                    username = it
+                )
             }
         }
     }
