@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.githubusers.ui.details.DetailsScreen
+import com.example.githubusers.ui.details.DetailsViewModel
 import com.example.githubusers.ui.home.HomeScreen
 import com.example.githubusers.ui.home.HomeViewModel
 
@@ -16,7 +17,8 @@ import com.example.githubusers.ui.home.HomeViewModel
 fun MyAppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    detailsViewModel: DetailsViewModel,
 ) {
     val navigateToDetails: (username: String) -> Unit =
         { username -> navController.navigate(Screen.Details.passUsername(username)) }
@@ -38,6 +40,7 @@ fun MyAppNavHost(
         ) { backStackEntry ->
             backStackEntry.arguments?.getString(USER_NAME_ARGUMENT_KEY)?.let {
                 DetailsScreen(
+                    detailsViewModel = detailsViewModel,
                     popBackStack = { navController.popBackStack() },
                     username = it
                 )

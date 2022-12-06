@@ -14,6 +14,7 @@ import com.example.githubusers.data.repository.GitHubRepository
 import com.example.githubusers.data.repository.GitHubUsersInterface
 import com.example.githubusers.data.repository.GitHubUsersRemoteDataSource
 import com.example.githubusers.navigation.MyAppNavHost
+import com.example.githubusers.ui.details.DetailsViewModel
 import com.example.githubusers.ui.home.HomeViewModel
 import com.example.githubusers.ui.theme.GitHubUsersTheme
 import kotlinx.coroutines.Dispatchers
@@ -38,12 +39,21 @@ class MainActivity : ComponentActivity() {
                             )
                         )
                     )
+                    val detailsViewModel = DetailsViewModel(
+                        GitHubRepository(
+                            GitHubUsersRemoteDataSource(
+                                Dispatchers.IO,
+                                GitHubService.retrofit.create(GitHubUsersInterface::class.java)
+                            )
+                        )
+                    )
 
                     navController = rememberNavController()
                     MyAppNavHost(
                         modifier = Modifier,
                         navController = navController,
-                        homeViewModel = homeViewModel
+                        homeViewModel = homeViewModel,
+                        detailsViewModel = detailsViewModel
                     )
                     homeViewModel.usersList()
                 }
