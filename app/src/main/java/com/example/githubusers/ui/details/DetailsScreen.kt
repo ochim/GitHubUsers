@@ -2,8 +2,21 @@ package com.example.githubusers.ui.details
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -14,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -21,6 +35,8 @@ import coil.size.Scale
 import com.example.githubusers.R
 import com.example.githubusers.domain.User
 import com.example.githubusers.ui.FetchNetworkModelState
+import com.example.githubusers.ui.theme.GitHubUsersTheme
+import java.text.SimpleDateFormat
 
 @Composable
 fun DetailsScreen(
@@ -75,6 +91,7 @@ fun DetailsContent(
         is FetchNetworkModelState.NeverFetched -> {
             Text(username)
         }
+
         is FetchNetworkModelState.Fetching -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -83,54 +100,101 @@ fun DetailsContent(
                 CircularProgressIndicator()
             }
         }
+
         is FetchNetworkModelState.RefreshedOK -> {
             val user = (users.value as? FetchNetworkModelState.RefreshedOK<User>)?.data
             if (user != null) {
-                Column(
-                    modifier = Modifier.padding(all = 8.dp),
-                ) {
-                    user.avatar_url?.let {
-                        Image(
-                            modifier = Modifier
-                                .padding(bottom = 8.dp)
-                                .width(100.dp)
-                                .height(100.dp),
-                            painter = rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current).data(data = it)
-                                    .apply(block = fun ImageRequest.Builder.() {
-                                        crossfade(true)
-                                        scale(Scale.FILL)
-                                    }).build()
-                            ),
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                    val textStyle = MaterialTheme.typography.subtitle1
-                    Text(style = textStyle, text = user.login)
-                    Text(style = textStyle, text = user.name ?: "")
-                    Text(style = textStyle, text = user.location ?: "")
-                    Text(style = textStyle, text = "email: ${user.email ?: ""}")
-                    Text(style = textStyle, text = user.bio ?: "")
-                    user.twitter_username?.let {
-                        Text(style = textStyle, text = "twitter: @${user.twitter_username}")
-                    }
-                    Text(style = textStyle, text = "public_repos: ${user.public_repos}")
-                    Text(style = textStyle, text = "public_gists: ${user.public_gists}")
-                    Text(style = textStyle, text = "followers: ${user.followers}")
-                    Text(style = textStyle, text = "following: ${user.following}")
-                    Text(style = textStyle, text = "created_at: ${user.created_at}")
-                    Text(style = textStyle, text = "updated_at: ${user.updated_at}")
-                }
+                DetailsUser(user = user)
             } else {
                 Text(username)
             }
         }
+
         is FetchNetworkModelState.FetchedError -> {
             Text(username)
             val exception = (users.value as FetchNetworkModelState.FetchedError).exception
             Toast.makeText(LocalContext.current, exception.message, Toast.LENGTH_LONG).show()
         }
+
         else -> {}
+    }
+}
+
+@Composable
+fun DetailsUser(user: User) {
+    Column(
+        modifier = Modifier.padding(all = 8.dp),
+    ) {
+        user.avatar_url?.let {
+            Image(
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .width(100.dp)
+                    .height(100.dp),
+                painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(LocalContext.current).data(data = it)
+                        .apply(block = fun ImageRequest.Builder.() {
+                            crossfade(true)
+                            scale(Scale.FILL)
+                        }).build()
+                ),
+                contentDescription = null,
+                contentScale = ContentScale.Fit
+            )
+        }
+        Text(style = MaterialTheme.typography.h6, text = user.login)
+        Text(style = MaterialTheme.typography.h6, text = user.name ?: "")
+
+        val textStyle = MaterialTheme.typography.subtitle1
+        Text(style = textStyle, text = user.location ?: "")
+        Text(style = textStyle, text = "email: ${user.email ?: ""}")
+        Text(style = textStyle, text = user.bio ?: "")
+        user.twitter_username?.let {
+            Text(style = textStyle, text = "twitter: @${user.twitter_username}")
+        }
+        Text(style = textStyle, text = "${user.public_repos} public_repos")
+        Text(style = textStyle, text = "${user.public_gists} public_gists")
+        Text(style = textStyle, text = "${user.followers} followers")
+        Text(style = textStyle, text = "${user.following} following")
+        Text(style = textStyle, text = "created_at: ${convertFormattedString(user.created_at)}")
+        Text(style = textStyle, text = "updated_at: ${convertFormattedString(user.updated_at)}")
+    }
+}
+
+private fun convertFormattedString(string: String?): String {
+    return try {
+        val s = string ?: return ""
+        val parseFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        val date = parseFormat.parse(s)
+        val d = date ?: return ""
+        SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(d)
+    } catch (e: Exception) {
+        e.message ?: "exception"
+    }
+}
+
+@Preview("Light Theme", widthDp = 360, heightDp = 480)
+@Preview("Dark Theme", widthDp = 360, heightDp = 480)
+@Composable
+fun DetailUserPreview() {
+    val u = User(
+        login = "yamada",
+        id = 1,
+        avatar_url = "https://avatars.githubusercontent.com/u/7196624?v=4",
+        html_url = "https://github.com/ochim",
+        name = "taro yamada",
+        location = "Tokyo",
+        email = "aaa@example.com",
+        bio = "Mobile Application Engineer",
+        twitter_username = "yamada_t",
+        public_repos = 10,
+        public_gists = 10,
+        followers = 100,
+        following = 100,
+        created_at = "2014-04-06T15:06:58Z",
+        updated_at = "2022-11-29T10:28:46Z",
+    )
+    GitHubUsersTheme {
+        DetailsUser(user = u)
     }
 }

@@ -73,6 +73,7 @@ fun UserListContent(
                 CircularProgressIndicator()
             }
         }
+
         is FetchNetworkModelState.RefreshedOK -> {
             val data = (users.value as? FetchNetworkModelState.RefreshedOK<List<User>>)?.data
             if (!data.isNullOrEmpty()) {
@@ -85,10 +86,12 @@ fun UserListContent(
                 )
             }
         }
+
         is FetchNetworkModelState.FetchedError -> {
             val exception = (users.value as FetchNetworkModelState.FetchedError).exception
             Toast.makeText(LocalContext.current, exception.message, Toast.LENGTH_LONG).show()
         }
+
         else -> {}
     }
 }
@@ -108,7 +111,9 @@ fun UserList(
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
         state = listState
     ) {
-        items(users) {
+        items(items = users,
+            key = { user -> user.id }
+        ) {
             UserListItem(user = it, onNavigateToDetails)
         }
     }
