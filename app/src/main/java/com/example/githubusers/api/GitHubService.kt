@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 private const val GITHUB_API_URL = "https://api.github.com/"
 private const val GITHUB_TOKEN = BuildConfig.GITHUB_TOKEN
 object GitHubService {
-    var retrofit: Retrofit
+    val retrofit: Retrofit
 
     init {
         val moshi = Moshi.Builder()

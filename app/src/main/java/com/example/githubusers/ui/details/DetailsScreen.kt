@@ -51,8 +51,6 @@ fun DetailsScreen(
     popBackStack: () -> Unit,
     username: String
 ) {
-    detailsViewModel.reset()
-    detailsViewModel.userInfo(username)
     Scaffold(
         topBar = {
             DetailsTopBar(popBackStack)
@@ -95,9 +93,7 @@ fun DetailsContent(
 ) {
     val users = detailsViewModel.userLiveState.observeAsState()
     when (users.value) {
-        is FetchNetworkModelState.NeverFetched -> {
-            Text(username)
-        }
+        is FetchNetworkModelState.NeverFetched -> {}
 
         is FetchNetworkModelState.Fetching -> {
             Box(

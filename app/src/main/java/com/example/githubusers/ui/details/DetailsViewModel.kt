@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 
 class DetailsViewModel(
     private val gitHubRepository: GitHubRepository,
+    private val username: String? = null
 ) : ViewModel() {
 
     private val _userLiveState =
@@ -18,7 +19,11 @@ class DetailsViewModel(
     val userLiveState: LiveData<FetchNetworkModelState<User>>
         get() = _userLiveState
 
-    fun userInfo(username: String) {
+    init {
+        if (!username.isNullOrEmpty()) userInfo(username)
+    }
+
+    fun userInfo(name: String) {
         if (_userLiveState.value == FetchNetworkModelState.Fetching) return
 
         _userLiveState.value = FetchNetworkModelState.Fetching
@@ -26,14 +31,10 @@ class DetailsViewModel(
         viewModelScope.launch {
             try {
                 _userLiveState.value =
-                    FetchNetworkModelState.RefreshedOK(gitHubRepository.userInfo(username))
+                    FetchNetworkModelState.RefreshedOK(gitHubRepository.userInfo(name))
             } catch (e: Exception) {
                 _userLiveState.value = FetchNetworkModelState.FetchedError(e)
             }
         }
-    }
-
-    fun reset() {
-        _userLiveState.value = FetchNetworkModelState.NeverFetched
     }
 }

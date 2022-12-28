@@ -9,19 +9,11 @@ import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.githubusers.api.GitHubService
-import com.example.githubusers.data.repository.GitHubRepository
-import com.example.githubusers.data.repository.GitHubUsersInterface
-import com.example.githubusers.data.repository.GitHubUsersRemoteDataSource
 import com.example.githubusers.navigation.MyAppNavHost
-import com.example.githubusers.ui.details.DetailsViewModel
-import com.example.githubusers.ui.home.HomeViewModel
 import com.example.githubusers.ui.theme.GitHubUsersTheme
-import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -31,31 +23,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val homeViewModel = HomeViewModel(
-                        GitHubRepository(
-                            GitHubUsersRemoteDataSource(
-                                Dispatchers.IO,
-                                GitHubService.retrofit.create(GitHubUsersInterface::class.java)
-                            )
-                        )
-                    )
-                    val detailsViewModel = DetailsViewModel(
-                        GitHubRepository(
-                            GitHubUsersRemoteDataSource(
-                                Dispatchers.IO,
-                                GitHubService.retrofit.create(GitHubUsersInterface::class.java)
-                            )
-                        )
-                    )
-
                     navController = rememberNavController()
                     MyAppNavHost(
                         modifier = Modifier,
                         navController = navController,
-                        homeViewModel = homeViewModel,
-                        detailsViewModel = detailsViewModel
                     )
-                    homeViewModel.usersList()
                 }
             }
         }

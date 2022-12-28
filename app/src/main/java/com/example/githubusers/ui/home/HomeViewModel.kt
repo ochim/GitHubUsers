@@ -20,6 +20,10 @@ class HomeViewModel(
 
     var havingUsers: List<User> = emptyList()
 
+    init {
+        usersList()
+    }
+
     fun usersList() {
         if (_usersLiveState.value == FetchNetworkModelState.Fetching) return
 
