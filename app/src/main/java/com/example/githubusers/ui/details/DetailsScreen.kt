@@ -44,6 +44,7 @@ import com.example.githubusers.domain.User
 import com.example.githubusers.ui.FetchNetworkModelState
 import com.example.githubusers.ui.theme.GitHubUsersTheme
 import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun DetailsScreen(
@@ -196,10 +197,10 @@ fun DetailsUser(user: User) {
 private fun convertFormattedString(string: String?): String {
     return try {
         val s = string ?: return ""
-        val parseFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        val parseFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.US)
         val date = parseFormat.parse(s)
         val d = date ?: return ""
-        SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(d)
+        SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US).format(d)
     } catch (e: Exception) {
         e.message ?: "exception"
     }
