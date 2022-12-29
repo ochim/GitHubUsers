@@ -2,6 +2,7 @@ package com.example.githubusers.ui.home
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -119,7 +120,6 @@ fun UserList(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun UserListItem(
     user: User,
@@ -131,10 +131,11 @@ fun UserListItem(
             .height(50.dp)
             .fillMaxWidth(),
         elevation = 4.dp,
-        onClick = { onNavigateToDetails(user.login) }
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().clickable {
+                   onNavigateToDetails(user.login)
+            },
             verticalAlignment = Alignment.CenterVertically
         ) {
             user.avatar_url?.let {

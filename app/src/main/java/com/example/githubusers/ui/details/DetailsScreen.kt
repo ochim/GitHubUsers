@@ -93,7 +93,9 @@ fun DetailsContent(
 ) {
     val users = detailsViewModel.userLiveState.observeAsState()
     when (users.value) {
-        is FetchNetworkModelState.NeverFetched -> {}
+        is FetchNetworkModelState.NeverFetched -> {
+            Text(text = username)
+        }
 
         is FetchNetworkModelState.Fetching -> {
             Box(

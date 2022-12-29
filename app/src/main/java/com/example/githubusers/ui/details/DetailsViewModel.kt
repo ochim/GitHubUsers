@@ -10,18 +10,13 @@ import com.example.githubusers.ui.FetchNetworkModelState
 import kotlinx.coroutines.launch
 
 class DetailsViewModel(
-    private val gitHubRepository: GitHubRepository,
-    private val username: String? = null
+    private val gitHubRepository: GitHubRepository
 ) : ViewModel() {
 
     private val _userLiveState =
         MutableLiveData<FetchNetworkModelState<User>>(FetchNetworkModelState.NeverFetched)
     val userLiveState: LiveData<FetchNetworkModelState<User>>
         get() = _userLiveState
-
-    init {
-        if (!username.isNullOrEmpty()) userInfo(username)
-    }
 
     fun userInfo(name: String) {
         if (_userLiveState.value == FetchNetworkModelState.Fetching) return
