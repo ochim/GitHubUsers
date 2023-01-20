@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.githubusers.api.GitHubService
 import com.example.githubusers.data.repository.GitHubRepository
-import com.example.githubusers.data.repository.GitHubUsersInterface
+import com.example.githubusers.api.GitHubUsersInterface
 import com.example.githubusers.data.repository.GitHubUsersRemoteDataSource
 import com.example.githubusers.ui.theme.GitHubUsersTheme
 import kotlinx.coroutines.Dispatchers

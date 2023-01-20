@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.githubusers.data.repository.GitHubRepository
 import com.example.githubusers.domain.User
 import com.example.githubusers.ui.FetchNetworkModelState
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -18,7 +19,7 @@ class HomeViewModel(
     val usersLiveState: LiveData<FetchNetworkModelState<List<User>>>
         get() = _usersLiveState
 
-    var havingUsers: List<User> = emptyList()
+    private var havingUsers: List<User> = emptyList()
 
     init {
         usersList()
@@ -30,31 +31,31 @@ class HomeViewModel(
         _usersLiveState.value = FetchNetworkModelState.Fetching
 
         viewModelScope.launch {
-            try {
-                val users = gitHubRepository.usersList(null)
-                _usersLiveState.value = FetchNetworkModelState.RefreshedOK(users)
-                havingUsers = users
-            } catch (e: Exception) {
-                _usersLiveState.value = FetchNetworkModelState.FetchedError(e)
-            }
+            gitHubRepository.usersList(null)
+                .catch { e ->
+                    _usersLiveState.value = FetchNetworkModelState.FetchedError(e as Exception)
+                }.collect { users ->
+                    _usersLiveState.value = FetchNetworkModelState.RefreshedOK(users)
+                    havingUsers = users
+                }
         }
     }
 
     fun nextUsersList() {
         viewModelScope.launch {
-            try {
-                val lastId = havingUsers.last().id
+            val lastId = havingUsers.last().id
 
-                val nextUsers = gitHubRepository.usersList(lastId)
-                if (nextUsers.isNotEmpty()) {
-                    val mutable = havingUsers.toMutableList()
-                    mutable.addAll(nextUsers)
-                    _usersLiveState.value = FetchNetworkModelState.RefreshedOK(mutable)
-                    havingUsers = mutable.toList()
+            gitHubRepository.usersList(lastId)
+                .catch { e ->
+                    _usersLiveState.value = FetchNetworkModelState.FetchedError(e as Exception)
+                }.collect { users ->
+                    if (users.isNotEmpty()) {
+                        val mutable = havingUsers.toMutableList()
+                        mutable.addAll(users)
+                        _usersLiveState.value = FetchNetworkModelState.RefreshedOK(mutable)
+                        havingUsers = mutable.toList()
+                    }
                 }
-            } catch (e: Exception) {
-                _usersLiveState.value = FetchNetworkModelState.FetchedError(e)
-            }
         }
     }
 }
