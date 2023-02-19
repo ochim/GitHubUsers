@@ -3,14 +3,31 @@ package com.example.githubusers.ui.home
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -23,8 +40,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
 import com.example.githubusers.R
-import com.example.githubusers.domain.User
-import com.example.githubusers.ui.FetchNetworkModelState
+import com.example.githubusers.domain.UserItem
 import kotlinx.coroutines.flow.filter
 
 @Composable
@@ -63,10 +79,10 @@ fun UserListContent(
     homeViewModel: HomeViewModel,
     onNavigateToDetails: (String) -> Unit
 ) {
-    val users = homeViewModel.usersLiveState.observeAsState()
-    when (users.value) {
-        is FetchNetworkModelState.NeverFetched -> {}
-        is FetchNetworkModelState.Fetching -> {
+    val state = homeViewModel.uiState.collectAsState()
+    when (state.value) {
+        is HomeUiState.Idle -> {}
+        is HomeUiState.Fetching -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -75,25 +91,23 @@ fun UserListContent(
             }
         }
 
-        is FetchNetworkModelState.RefreshedOK -> {
-            val data = (users.value as? FetchNetworkModelState.RefreshedOK<List<User>>)?.data
-            if (!data.isNullOrEmpty()) {
+        is HomeUiState.RefreshedOK -> {
+            val data = (state.value as HomeUiState.RefreshedOK).data
+            if (data.isNotEmpty()) {
                 UserList(topPadding = paddingValues.calculateTopPadding(),
                     onNavigateToDetails = onNavigateToDetails,
                     users = data,
                     onAppearLastItem = {
-                        homeViewModel.nextUsersList()
+                        homeViewModel.nextUserItemsList()
                     }
                 )
             }
         }
 
-        is FetchNetworkModelState.FetchedError -> {
-            val exception = (users.value as FetchNetworkModelState.FetchedError).exception
+        is HomeUiState.Error -> {
+            val exception = (state.value as HomeUiState.Error).exception
             Toast.makeText(LocalContext.current, exception.message, Toast.LENGTH_LONG).show()
         }
-
-        else -> {}
     }
 }
 
@@ -101,7 +115,7 @@ fun UserListContent(
 fun UserList(
     topPadding: Dp,
     onNavigateToDetails: (String) -> Unit,
-    users: List<User>,
+    users: List<UserItem>,
     onAppearLastItem: () -> Unit
 ) {
     val listState = rememberLazyListState().apply {
@@ -122,7 +136,7 @@ fun UserList(
 
 @Composable
 fun UserListItem(
-    user: User,
+    user: UserItem,
     onNavigateToDetails: (String) -> Unit
 ) {
     Card(
@@ -133,12 +147,14 @@ fun UserListItem(
         elevation = 4.dp,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().clickable {
-                   onNavigateToDetails(user.login)
-            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onNavigateToDetails(user.login)
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            user.avatar_url?.let {
+            user.avatarUrl?.let {
                 Image(
                     modifier = Modifier
                         .padding(end = 8.dp)

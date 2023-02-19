@@ -1,12 +1,12 @@
 package com.example.githubusers.ui.home
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.githubusers.data.repository.GitHubRepository
-import com.example.githubusers.domain.User
-import com.example.githubusers.ui.FetchNetworkModelState
+import com.example.githubusers.domain.UserItem
+import com.example.githubusers.domain.toUserItem
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
@@ -14,45 +14,45 @@ class HomeViewModel(
     private val gitHubRepository: GitHubRepository,
 ) : ViewModel() {
 
-    private val _usersLiveState =
-        MutableLiveData<FetchNetworkModelState<List<User>>>(FetchNetworkModelState.NeverFetched)
-    val usersLiveState: LiveData<FetchNetworkModelState<List<User>>>
-        get() = _usersLiveState
+    private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Idle)
+    val uiState: StateFlow<HomeUiState> = _uiState
 
-    private var havingUsers: List<User> = emptyList()
+    private var havingUsers: List<UserItem> = emptyList()
 
     init {
-        usersList()
+        userItemsList()
     }
 
-    fun usersList() {
-        if (_usersLiveState.value == FetchNetworkModelState.Fetching) return
+    fun userItemsList() {
+        if (_uiState.value == HomeUiState.Fetching) return
 
-        _usersLiveState.value = FetchNetworkModelState.Fetching
+        _uiState.value = HomeUiState.Fetching
 
         viewModelScope.launch {
             gitHubRepository.usersList(null)
                 .catch { e ->
-                    _usersLiveState.value = FetchNetworkModelState.FetchedError(e as Exception)
+                    _uiState.value = HomeUiState.Error(e as Exception)
                 }.collect { users ->
-                    _usersLiveState.value = FetchNetworkModelState.RefreshedOK(users)
-                    havingUsers = users
+                    val userItems = users.map { it.toUserItem() }
+                    _uiState.value = HomeUiState.RefreshedOK(userItems)
+                    havingUsers = userItems
                 }
         }
     }
 
-    fun nextUsersList() {
+    fun nextUserItemsList() {
         viewModelScope.launch {
             val lastId = havingUsers.last().id
 
             gitHubRepository.usersList(lastId)
                 .catch { e ->
-                    _usersLiveState.value = FetchNetworkModelState.FetchedError(e as Exception)
+                    _uiState.value = HomeUiState.Error(e as Exception)
                 }.collect { users ->
                     if (users.isNotEmpty()) {
+                        val userItems = users.map { it.toUserItem() }
                         val mutable = havingUsers.toMutableList()
-                        mutable.addAll(users)
-                        _usersLiveState.value = FetchNetworkModelState.RefreshedOK(mutable)
+                        mutable.addAll(userItems)
+                        _uiState.value = HomeUiState.RefreshedOK(mutable)
                         havingUsers = mutable.toList()
                     }
                 }
