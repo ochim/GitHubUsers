@@ -17,3 +17,11 @@ data class User(
     val created_at: String?,
     val updated_at: String?,
 )
+
+fun User.toUserItem(): UserItem {
+    return UserItem(
+        login,
+        id,
+        avatar_url
+    )
+}
