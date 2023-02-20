@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -158,7 +160,8 @@ fun UserListItem(
                 Image(
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .width(50.dp),
+                        .width(50.dp)
+                        .clip(RoundedCornerShape(percent = 50)),
                     painter = rememberAsyncImagePainter(
                         ImageRequest.Builder(LocalContext.current).data(data = it)
                             .apply(block = fun ImageRequest.Builder.() {
@@ -166,8 +169,8 @@ fun UserListItem(
                                 scale(Scale.FILL)
                             }).build()
                     ),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit
+                    contentDescription = "avatar",
+                    contentScale = ContentScale.Crop
                 )
             }
             Text(
