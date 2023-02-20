@@ -14,25 +14,16 @@ class GitHubUsersRemoteDataSource(
     private val usersInterface: GitHubUsersInterface
 ) {
 
-    val usersList: Flow<List<User>> = flow {
-        val response = usersInterface.fetchUsers().execute()
+    fun usersList(since: Int?): Flow<List<User>> = flow {
+        val response = if (since == null) usersInterface.fetchUsers().execute()
+        else usersInterface.fetchNextUsers(since).execute()
+
         if (response.isSuccessful) {
             emit(response.body()!!)
         } else {
-            throw Exception("usersList error code ${response.code()} ${response.message()}")
+            throw Exception("usersList since:$since error code ${response.code()} ${response.message()}")
         }
     }.flowOn(ioDispatcher)
-
-
-    fun nextUsersList(since: Int): Flow<List<User>> = flow {
-        val response = usersInterface.fetchNextUsers(since).execute()
-        if (response.isSuccessful) {
-            emit(response.body()!!)
-        } else {
-            throw Exception("nextUsersList error code ${response.code()} ${response.message()}")
-        }
-    }.flowOn(ioDispatcher)
-
 
     suspend fun userInfo(username: String): User {
         return withContext(ioDispatcher) {

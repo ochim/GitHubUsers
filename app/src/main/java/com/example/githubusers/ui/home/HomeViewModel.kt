@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.githubusers.data.repository.GitHubRepository
 import com.example.githubusers.domain.UserItem
-import com.example.githubusers.domain.toUserItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -32,8 +31,7 @@ class HomeViewModel(
             gitHubRepository.usersList(null)
                 .catch { e ->
                     _uiState.value = HomeUiState.Error(e as Exception)
-                }.collect { users ->
-                    val userItems = users.map { it.toUserItem() }
+                }.collect { userItems ->
                     _uiState.value = HomeUiState.RefreshedOK(userItems)
                     havingUsers = userItems
                 }
@@ -47,9 +45,8 @@ class HomeViewModel(
             gitHubRepository.usersList(lastId)
                 .catch { e ->
                     _uiState.value = HomeUiState.Error(e as Exception)
-                }.collect { users ->
-                    if (users.isNotEmpty()) {
-                        val userItems = users.map { it.toUserItem() }
+                }.collect { userItems ->
+                    if (userItems.isNotEmpty()) {
                         val mutable = havingUsers.toMutableList()
                         mutable.addAll(userItems)
                         _uiState.value = HomeUiState.RefreshedOK(mutable)
