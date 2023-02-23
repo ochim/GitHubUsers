@@ -82,9 +82,20 @@ fun UserListContent(
     onNavigateToDetails: (String) -> Unit
 ) {
     val state = homeViewModel.uiState.collectAsState()
-    when (state.value) {
-        is HomeUiState.Idle -> {}
-        is HomeUiState.Fetching -> {
+    val items = state.value.userItems
+    if (items.isNotEmpty()) {
+        UserList(topPadding = paddingValues.calculateTopPadding(),
+            onNavigateToDetails = onNavigateToDetails,
+            users = items,
+            onAppearLastItem = {
+                homeViewModel.nextUserItemsList()
+            }
+        )
+    }
+
+    when (state.value.loading) {
+        Loading.IDLE -> {}
+        Loading.FETCHING -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -93,23 +104,19 @@ fun UserListContent(
             }
         }
 
-        is HomeUiState.RefreshedOK -> {
-            val data = (state.value as HomeUiState.RefreshedOK).data
-            if (data.isNotEmpty()) {
-                UserList(topPadding = paddingValues.calculateTopPadding(),
-                    onNavigateToDetails = onNavigateToDetails,
-                    users = data,
-                    onAppearLastItem = {
-                        homeViewModel.nextUserItemsList()
-                    }
-                )
+        Loading.APPENDING -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                CircularProgressIndicator()
             }
         }
+    }
 
-        is HomeUiState.Error -> {
-            val exception = (state.value as HomeUiState.Error).exception
-            Toast.makeText(LocalContext.current, exception.message, Toast.LENGTH_LONG).show()
-        }
+    if (state.value.exception != null) {
+        Toast.makeText(LocalContext.current, state.value.exception!!.message, Toast.LENGTH_LONG)
+            .show()
     }
 }
 

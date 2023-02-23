@@ -13,7 +13,7 @@ class HomeViewModel(
     private val gitHubRepository: GitHubRepository,
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Idle)
+    private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
 
     private var havingUsers: List<UserItem> = emptyList()
@@ -23,33 +23,37 @@ class HomeViewModel(
     }
 
     fun userItemsList() {
-        if (_uiState.value == HomeUiState.Fetching) return
+        if (_uiState.value.loading == Loading.FETCHING) return
 
-        _uiState.value = HomeUiState.Fetching
+        _uiState.value = HomeUiState(Loading.FETCHING)
 
         viewModelScope.launch {
             gitHubRepository.usersList(null)
                 .catch { e ->
-                    _uiState.value = HomeUiState.Error(e as Exception)
+                    _uiState.value = HomeUiState(Loading.IDLE, emptyList(), e as Exception)
                 }.collect { userItems ->
-                    _uiState.value = HomeUiState.RefreshedOK(userItems)
+                    _uiState.value = HomeUiState(Loading.IDLE, userItems, null)
                     havingUsers = userItems
                 }
         }
     }
 
     fun nextUserItemsList() {
+        if (_uiState.value.loading == Loading.APPENDING) return
+
+        _uiState.value = HomeUiState(Loading.APPENDING, havingUsers, null)
+
         viewModelScope.launch {
             val lastId = havingUsers.last().id
 
             gitHubRepository.usersList(lastId)
                 .catch { e ->
-                    _uiState.value = HomeUiState.Error(e as Exception)
+                    _uiState.value = HomeUiState(Loading.IDLE, havingUsers, e as Exception)
                 }.collect { userItems ->
                     if (userItems.isNotEmpty()) {
                         val mutable = havingUsers.toMutableList()
                         mutable.addAll(userItems)
-                        _uiState.value = HomeUiState.RefreshedOK(mutable)
+                        _uiState.value = HomeUiState(Loading.IDLE, mutable.toList(), null)
                         havingUsers = mutable.toList()
                     }
                 }
