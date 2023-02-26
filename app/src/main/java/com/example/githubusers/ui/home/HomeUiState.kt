@@ -9,5 +9,5 @@ class HomeUiState(
 )
 
 enum class Loading {
-    IDLE, FETCHING, APPENDING
+    IDLE, FETCHING, APPENDING, ERROR
 }

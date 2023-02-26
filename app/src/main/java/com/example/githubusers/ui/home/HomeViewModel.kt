@@ -30,7 +30,7 @@ class HomeViewModel(
         viewModelScope.launch {
             gitHubRepository.usersList(null)
                 .catch { e ->
-                    _uiState.value = HomeUiState(Loading.IDLE, emptyList(), e as Exception)
+                    _uiState.value = HomeUiState(Loading.ERROR, emptyList(), e as Exception)
                 }.collect { userItems ->
                     _uiState.value = HomeUiState(Loading.IDLE, userItems, null)
                     havingUsers = userItems

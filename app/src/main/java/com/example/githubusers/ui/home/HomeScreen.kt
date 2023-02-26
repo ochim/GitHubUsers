@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -110,6 +111,22 @@ fun UserListContent(
                 contentAlignment = Alignment.BottomCenter
             ) {
                 CircularProgressIndicator()
+            }
+        }
+
+        Loading.ERROR -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                    onClick = { homeViewModel.userItemsList() }
+                ) {
+                    Text(text = "RETRY")
+                }
             }
         }
     }
