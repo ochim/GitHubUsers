@@ -97,7 +97,7 @@ fun DetailsContent(
     val users = detailsViewModel.userLiveState.observeAsState()
     when (users.value) {
         is FetchNetworkModelState.NeverFetched -> {
-            Text(text = username)
+            Text(text = username, modifier = Modifier.padding(paddingValues))
         }
 
         is FetchNetworkModelState.Fetching -> {
@@ -114,12 +114,12 @@ fun DetailsContent(
             if (user != null) {
                 DetailsUser(user = user)
             } else {
-                Text(username)
+                Text(username, modifier = Modifier.padding(paddingValues))
             }
         }
 
         is FetchNetworkModelState.FetchedError -> {
-            Text(username)
+            Text(username, modifier = Modifier.padding(paddingValues))
             val exception = (users.value as FetchNetworkModelState.FetchedError).exception
             Toast.makeText(LocalContext.current, exception.message, Toast.LENGTH_LONG).show()
         }
