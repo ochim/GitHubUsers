@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -131,58 +133,68 @@ fun DetailsUser(user: User) {
     Column(
         modifier = Modifier.padding(all = 8.dp),
     ) {
-        user.avatarUrl?.let {
-            Image(
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .width(100.dp)
-                    .height(100.dp),
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current).data(data = it)
-                        .apply(block = fun ImageRequest.Builder.() {
-                            crossfade(true)
-                            scale(Scale.FILL)
-                        }).build()
-                ),
-                contentDescription = null,
-                contentScale = ContentScale.Fit
-            )
-        }
-        Text(style = MaterialTheme.typography.h6, text = user.login)
-        Text(style = MaterialTheme.typography.h6, text = user.name ?: "")
-
-        val styledText = buildAnnotatedString {
-            // ここから先の処理でappendされたテキストにAnnotationを追加
-            // pop()が呼ばれるまでが対象
-            pushStringAnnotation(tag = "URL", annotation = user.htmlUrl)
-
-            withStyle(
-                SpanStyle(
-                    color = Color.Blue,
-                    textDecoration = TextDecoration.Underline
+        Row(modifier = Modifier.fillMaxWidth()) {
+            user.avatarUrl?.let {
+                Image(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .width(100.dp)
+                        .height(100.dp),
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current).data(data = it)
+                            .apply(block = fun ImageRequest.Builder.() {
+                                crossfade(true)
+                                scale(Scale.FILL)
+                            }).build()
+                    ),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
                 )
-            ) {
-                append("GitHub")
             }
+            Spacer(Modifier.width(8.dp))
+            Column {
+                Text(
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                    style = MaterialTheme.typography.h6,
+                    text = user.login
+                )
+                Text(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    style = MaterialTheme.typography.h6, text = user.name ?: ""
+                )
+                val styledText = buildAnnotatedString {
+                    // ここから先の処理でappendされたテキストにAnnotationを追加
+                    // pop()が呼ばれるまでが対象
+                    pushStringAnnotation(tag = "URL", annotation = user.htmlUrl)
 
-            pop()
-        }
-
-        val uriHandler = LocalUriHandler.current
-        ClickableText(
-            text = styledText,
-            style = MaterialTheme.typography.body1,
-            onClick = { pos ->
-                // クリックされた箇所からAnnotationを取得
-                val annotation =
-                    styledText.getStringAnnotations(start = pos, end = pos).firstOrNull()
-                annotation?.let { range ->
-                    // クリックされた箇所のURLを開く
-                    // pushStringAnnotationで設定した情報が取得できる
-                    uriHandler.openUri(range.item)
+                    withStyle(
+                        SpanStyle(
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append("GitHub Link")
+                    }
+                    pop()
                 }
+
+                val uriHandler = LocalUriHandler.current
+                ClickableText(
+                    text = styledText,
+                    style = MaterialTheme.typography.body1,
+                    onClick = { pos ->
+                        // クリックされた箇所からAnnotationを取得
+                        val annotation =
+                            styledText.getStringAnnotations(start = pos, end = pos).firstOrNull()
+                        annotation?.let { range ->
+                            // クリックされた箇所のURLを開く
+                            // pushStringAnnotationで設定した情報が取得できる
+                            uriHandler.openUri(range.item)
+                        }
+                    }
+                )
             }
-        )
+        }
 
         val textStyle = MaterialTheme.typography.subtitle1
         Text(style = textStyle, text = user.location ?: "")
@@ -191,16 +203,22 @@ fun DetailsUser(user: User) {
         user.twitterUsername?.let {
             Text(style = textStyle, text = "twitter: @${user.twitterUsername}")
         }
-        Text(style = textStyle, text = "${user.publicRepos} public_repos")
-        Text(style = textStyle, text = "${user.publicGists} public_gists")
+        Text(style = textStyle, text = "${user.publicRepos} public repos")
+        Text(style = textStyle, text = "${user.publicGists} public gists")
         Text(style = textStyle, text = "${user.followers} followers")
         Text(style = textStyle, text = "${user.following} following")
-        Text(style = textStyle, text = "created_at: ${convertFormattedString(user.createdAt)}")
-        Text(style = textStyle, text = "updated_at: ${convertFormattedString(user.updatedAt)}")
+        Text(
+            style = textStyle,
+            text = "created at: ${convertTimeStringToLocalString(user.createdAt)}"
+        )
+        Text(
+            style = textStyle,
+            text = "updated at: ${convertTimeStringToLocalString(user.updatedAt)}"
+        )
     }
 }
 
-private fun convertFormattedString(string: String?): String {
+private fun convertTimeStringToLocalString(string: String?): String {
     return try {
         val s = string ?: return ""
         val parseFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.US)
