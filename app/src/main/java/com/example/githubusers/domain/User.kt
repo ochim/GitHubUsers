@@ -1,27 +1,31 @@
 package com.example.githubusers.domain
 
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class User(
     val login: String,
     val id: Int,
-    val avatar_url: String?,
-    val html_url: String,
+    @Json(name = "avatar_url") val avatarUrl: String?,
+    @Json(name = "html_url") val htmlUrl: String,
     val name: String?,
     val location: String?,
     val email: String?,
     val bio: String?,
-    val twitter_username: String?,
-    val public_repos: Int?,
-    val public_gists: Int?,
+    @Json(name = "twitter_username") val twitterUsername: String?,
+    @Json(name = "public_repos") val publicRepos: Int?,
+    @Json(name = "public_gists") val publicGists: Int?,
     val followers: Int?,
     val following: Int?,
-    val created_at: String?,
-    val updated_at: String?,
+    @Json(name = "created_at") val createdAt: String?,
+    @Json(name = "updated_at") val updatedAt: String?,
 )
 
 fun User.toUserItem(): UserItem {
     return UserItem(
         login,
         id,
-        avatar_url
+        avatarUrl
     )
 }

@@ -131,7 +131,7 @@ fun DetailsUser(user: User) {
     Column(
         modifier = Modifier.padding(all = 8.dp),
     ) {
-        user.avatar_url?.let {
+        user.avatarUrl?.let {
             Image(
                 modifier = Modifier
                     .padding(bottom = 8.dp)
@@ -154,9 +154,14 @@ fun DetailsUser(user: User) {
         val styledText = buildAnnotatedString {
             // ここから先の処理でappendされたテキストにAnnotationを追加
             // pop()が呼ばれるまでが対象
-            pushStringAnnotation(tag = "URL", annotation = user.html_url)
+            pushStringAnnotation(tag = "URL", annotation = user.htmlUrl)
 
-            withStyle(SpanStyle(color = Color.Blue, textDecoration = TextDecoration.Underline)) {
+            withStyle(
+                SpanStyle(
+                    color = Color.Blue,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
                 append("GitHub")
             }
 
@@ -169,7 +174,8 @@ fun DetailsUser(user: User) {
             style = MaterialTheme.typography.body1,
             onClick = { pos ->
                 // クリックされた箇所からAnnotationを取得
-                val annotation = styledText.getStringAnnotations(start = pos, end = pos).firstOrNull()
+                val annotation =
+                    styledText.getStringAnnotations(start = pos, end = pos).firstOrNull()
                 annotation?.let { range ->
                     // クリックされた箇所のURLを開く
                     // pushStringAnnotationで設定した情報が取得できる
@@ -182,15 +188,15 @@ fun DetailsUser(user: User) {
         Text(style = textStyle, text = user.location ?: "")
         Text(style = textStyle, text = "email: ${user.email ?: ""}")
         Text(style = textStyle, text = user.bio ?: "")
-        user.twitter_username?.let {
-            Text(style = textStyle, text = "twitter: @${user.twitter_username}")
+        user.twitterUsername?.let {
+            Text(style = textStyle, text = "twitter: @${user.twitterUsername}")
         }
-        Text(style = textStyle, text = "${user.public_repos} public_repos")
-        Text(style = textStyle, text = "${user.public_gists} public_gists")
+        Text(style = textStyle, text = "${user.publicRepos} public_repos")
+        Text(style = textStyle, text = "${user.publicGists} public_gists")
         Text(style = textStyle, text = "${user.followers} followers")
         Text(style = textStyle, text = "${user.following} following")
-        Text(style = textStyle, text = "created_at: ${convertFormattedString(user.created_at)}")
-        Text(style = textStyle, text = "updated_at: ${convertFormattedString(user.updated_at)}")
+        Text(style = textStyle, text = "created_at: ${convertFormattedString(user.createdAt)}")
+        Text(style = textStyle, text = "updated_at: ${convertFormattedString(user.updatedAt)}")
     }
 }
 
@@ -213,19 +219,19 @@ fun DetailUserPreview() {
     val u = User(
         login = "yamada",
         id = 1,
-        avatar_url = "https://avatars.githubusercontent.com/u/7196624?v=4",
-        html_url = "https://github.com/ochim",
+        avatarUrl = "https://avatars.githubusercontent.com/u/7196624?v=4",
+        htmlUrl = "https://github.com/ochim",
         name = "taro yamada",
         location = "Tokyo",
         email = "aaa@example.com",
         bio = "Mobile Application Engineer",
-        twitter_username = "yamada_t",
-        public_repos = 10,
-        public_gists = 10,
+        twitterUsername = "yamada_t",
+        publicRepos = 10,
+        publicGists = 10,
         followers = 100,
         following = 100,
-        created_at = "2014-04-06T15:06:58Z",
-        updated_at = "2022-11-29T10:28:46Z",
+        createdAt = "2014-04-06T15:06:58Z",
+        updatedAt = "2022-11-29T10:28:46Z",
     )
     GitHubUsersTheme {
         DetailsUser(user = u)
